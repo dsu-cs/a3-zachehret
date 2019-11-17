@@ -43,7 +43,7 @@ private:
     void postorder_helper(std::vector<T>*, Node<T>*);
     void preorder_helper(std::vector<T>*, Node<T>*);
     Node<T> *insert_helper(Node<T>*, T);
-    void remove_helper(Node<T>*, T);
+    void remove_helper(Node<T>*, T, Node<T>*);
 };
 
 template<class T>
@@ -166,12 +166,74 @@ Node<T> *BST<T>::searchHelper(Node<T> *_root, T val) {
 template<class T>
 void BST<T>::remove(T val)
 {
-    remove_helper(root, val);
+    remove_helper(root, val, nullptr);
 }
 
 template<class T>
-void BST<T>::remove_helper(Node<T> *tree, T key) {
-    
+void BST<T>::remove_helper(Node<T> *node, T key, Node<T> *parent_node) {
+    if(root == nullptr) {
+        cout << "The tree is empty. Cannot remove >" << key << ">" << endl;
+    } else {
+        if(node->get_data() == key) {
+            //Determine the type of node we're trying to remove
+            if(node->get_left() == nullptr && node->get_right() == nullptr) { //    **** LEAF NODE ****
+                if(node->get_data() == root->get_data()) { //IF the node is the tree's root node.
+                    root = nullptr; //This tree is now empty.
+                } else {
+                    //Simply set the parent's node that points to the node we have found to null to remove the node.
+                    if(parent_node->get_left()->get_data() == node->get_data()) { //Parent's left node is the node we are removing
+                        parent_node->set_left(nullptr); //Adios amigo
+                    } else { //Parent's right node is the node we are removing
+                        parent_node->set_right(nullptr); //Adios amigo
+                    }
+                    delete(node); //release the memory held by the deleted node
+                    return; //We are done.
+                }
+            //Single child (Left node is null and right node is not and Vice versa, to ensure the node has only one child)
+            } else if( (node->get_left() == nullptr && node->get_right() != nullptr) || (node->get_left != nullptr && node->get_right() == nullptr)   ) { 
+                if(node->get_data() == root->get_data()) { //IF the node is the tree's root node
+                    if(node->get_left() == nullptr && node->get_right() != nullptr) { //THE CHILD IS TO NODE'S RIGHT
+                        //Here we have concluded the following:
+                        //
+                        // [1]: The node we are removing has 1 and only 1 child
+                        // [2]: The node we are removing is the root node
+                        //
+                        // Therefore, in this edge case, it does not matter if the child node is to the left or right of it's parent a.k.a the node we are removing.
+                        // It only matters when deciding what root should be set to.
+                        // This node regardless of side, will become the tree's root.
+                        //
+                        root = node->get_right();
+
+                    } else { //THE CHILD IS TO NODE'S LEFT
+                        //Here we have concluded the following:
+                        //
+                        // [1]: The node we are removing has 1 and only 1 child
+                        // [2]: The node we are removing is the root node
+                        //
+                        // Therefore, in this edge case, it does not matter if the child node is to the left or right of it's parent a.k.a the node we are removing.
+                        // It only matters when deciding what root should be set to.
+                        // This node regardless of side, will become the tree's root.
+                        //
+                        root = node->get_left();
+                    }
+                    delete(node); //release the memory held by the deleted node
+                    return; //We are done.
+
+                } else { //The node is not the tree's root node
+
+                }
+            } else if() { //The node has two children (fml)
+
+            }
+        } else {
+            //We have not yet found the node, try again using a search recursion
+            if(key < node->get_data()) {
+                remove_helper(node->get_left(), key, node);
+            } else {
+                remove_helper(node->get_right(), key, node);
+            }
+        }
+    }
 }
 
 template<class T>
